@@ -124,7 +124,7 @@ module.exports.getAllMarbles = function(callback){
 			
 			//serialized version
 			async.eachLimit(keys, concurrency, function(key, cb) {
-				console.log('!', json[key]);
+				console.log('!INI GUNDU', json[key]);
 				chaincode.query.read([json[key]], function(e, marble) {
 					if(e != null) console.log('error:', e);
 					else {
@@ -140,7 +140,7 @@ module.exports.getAllMarbles = function(callback){
 			console.log('error:', e);
 		}
 	});
-}
+};
 
 module.exports.createMarble = function(data, callback){
 	chaincode.invoke.init_marble([data.name, data.color, data.size, data.user], function(err, result) {
@@ -148,5 +148,13 @@ module.exports.createMarble = function(data, callback){
 			return callback(null, result);
 		}
 		
+	});
+};
+
+module.exports.transferMarble = function(data, callback){
+	chaincode.invoke.set_user([data.name, data.user], function(err, result){
+		if(!err){
+			return callback(null, result);
+		}
 	});
 }

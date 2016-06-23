@@ -1,5 +1,5 @@
 {
-    "credentials": {
+  "credentials": {
     "peers": [
       {
         "discovery_host": "c9527fe1-2332-48aa-8e6f-797d0689c52e_vp1-discovery.blockchain.ibm.com",

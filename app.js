@@ -235,102 +235,102 @@ function cb_deployed(e, d){
 	else{
 		console.log('------------------------------------------ Websocket Up ------------------------------------------');
 		
-		wss = new ws.Server({server: server});												//start the websocket now
-		wss.on('connection', function connection(ws) {
-			ws.on('message', function incoming(message) {
-				console.log('received ws msg:', message);
-				try{
-					var data = JSON.parse(message);
-					part1.process_msg(ws, data);
-					part2.process_msg(ws, data);
-				}
-				catch(e){
-					console.log('ws message error', e);
-				}
-			});
-			
-			ws.on('error', function(e){console.log('ws error', e);});
-			ws.on('close', function(){console.log('ws closed');});
-		});
-		
-		wss.broadcast = function broadcast(data) {											//send to all connections			
-			wss.clients.forEach(function each(client) {
-				try{
-					data.v = '2';
-					client.send(JSON.stringify(data));
-				}
-				catch(e){
-					console.log('error broadcast ws', e);
-				}
-			});
-		};
+//		wss = new ws.Server({server: server});												//start the websocket now
+//		wss.on('connection', function connection(ws) {
+//			ws.on('message', function incoming(message) {
+//				console.log('received ws msg:', message);
+//				try{
+//					var data = JSON.parse(message);
+//					part1.process_msg(ws, data);
+//					part2.process_msg(ws, data);
+//				}
+//				catch(e){
+//					console.log('ws message error', e);
+//				}
+//			});
+//			
+//			ws.on('error', function(e){console.log('ws error', e);});
+//			ws.on('close', function(){console.log('ws closed');});
+//		});
+//		
+//		wss.broadcast = function broadcast(data) {											//send to all connections			
+//			wss.clients.forEach(function each(client) {
+//				try{
+//					data.v = '2';
+//					client.send(JSON.stringify(data));
+//				}
+//				catch(e){
+//					console.log('error broadcast ws', e);
+//				}
+//			});
+//		};
 		
 		// ========================================================
 		// Monitor the height of the blockchain
 		// ========================================================
-		ibc.monitor_blockheight(function(chain_stats){										//there is a new block, lets refresh everything that has a state
-			if(chain_stats && chain_stats.height){
-				console.log('hey new block, lets refresh and broadcast to all');
-				ibc.block_stats(chain_stats.height - 1, cb_blockstats);
-				wss.broadcast({msg: 'reset'});
-				chaincode.query.read(['_marbleindex'], cb_got_index);
-				chaincode.query.read(['_opentrades'], cb_got_trades);
-			}
-			
-			//got the block's stats, lets send the statistics
-			function cb_blockstats(e, stats){
-				if(e != null) console.log('error:', e);
-				else {
-					if(chain_stats.height) stats.height = chain_stats.height - 1;
-					wss.broadcast({msg: 'chainstats', e: e, chainstats: chain_stats, blockstats: stats});
-				}
-			}
-			
-			//got the marble index, lets get each marble
-			function cb_got_index(e, index){
-				if(e != null) console.log('error:', e);
-				else{
-					try{
-						var json = JSON.parse(index);
-						for(var i in json){
-							console.log('!', i, json[i]);
-							chaincode.query.read([json[i]], cb_got_marble);							//iter over each, read their values
-						}
-					}
-					catch(e){
-						console.log('marbles index msg error:', e);
-					}
-				}
-			}
-			
-			//call back for getting a marble, lets send a message
-			function cb_got_marble(e, marble){
-				if(e != null) console.log('error:', e);
-				else {
-					try{
-						wss.broadcast({msg: 'marbles', marble: JSON.parse(marble)});
-					}
-					catch(e){
-						console.log('marble msg error', e);
-					}
-				}
-			}
-			
-			//call back for getting open trades, lets send the trades
-			function cb_got_trades(e, trades){
-				if(e != null) console.log('error:', e);
-				else {
-					try{
-						trades = JSON.parse(trades);
-						if(trades && trades.open_trades){
-							wss.broadcast({msg: 'open_trades', open_trades: trades.open_trades});
-						}
-					}
-					catch(e){
-						console.log('trade msg error', e);
-					}
-				}
-			}
-		});
+//		ibc.monitor_blockheight(function(chain_stats){										//there is a new block, lets refresh everything that has a state
+//			if(chain_stats && chain_stats.height){
+//				console.log('hey new block, lets refresh and broadcast to all');
+//				ibc.block_stats(chain_stats.height - 1, cb_blockstats);
+//				wss.broadcast({msg: 'reset'});
+//				chaincode.query.read(['_marbleindex'], cb_got_index);
+//				chaincode.query.read(['_opentrades'], cb_got_trades);
+//			}
+//			
+//			//got the block's stats, lets send the statistics
+//			function cb_blockstats(e, stats){
+//				if(e != null) console.log('error:', e);
+//				else {
+//					if(chain_stats.height) stats.height = chain_stats.height - 1;
+//					wss.broadcast({msg: 'chainstats', e: e, chainstats: chain_stats, blockstats: stats});
+//				}
+//			}
+//			
+//			//got the marble index, lets get each marble
+//			function cb_got_index(e, index){
+//				if(e != null) console.log('error:', e);
+//				else{
+//					try{
+//						var json = JSON.parse(index);
+//						for(var i in json){
+//							console.log('!', i, json[i]);
+//							chaincode.query.read([json[i]], cb_got_marble);							//iter over each, read their values
+//						}
+//					}
+//					catch(e){
+//						console.log('marbles index msg error:', e);
+//					}
+//				}
+//			}
+//			
+//			//call back for getting a marble, lets send a message
+//			function cb_got_marble(e, marble){
+//				if(e != null) console.log('error:', e);
+//				else {
+//					try{
+//						wss.broadcast({msg: 'marbles', marble: JSON.parse(marble)});
+//					}
+//					catch(e){
+//						console.log('marble msg error', e);
+//					}
+//				}
+//			}
+//			
+//			//call back for getting open trades, lets send the trades
+//			function cb_got_trades(e, trades){
+//				if(e != null) console.log('error:', e);
+//				else {
+//					try{
+//						trades = JSON.parse(trades);
+//						if(trades && trades.open_trades){
+//							wss.broadcast({msg: 'open_trades', open_trades: trades.open_trades});
+//						}
+//					}
+//					catch(e){
+//						console.log('trade msg error', e);
+//					}
+//				}
+//			}
+//		});
 	}
 }
