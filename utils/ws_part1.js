@@ -111,3 +111,42 @@ module.exports.process_msg = function(ws, data){
 		}
 	}
 };
+
+module.exports.getAllMarbles = function(callback){
+	chaincode.query.read(['_marbleindex'], function(err, data){
+		try{
+			var json = JSON.parse(data);
+			var keys = Object.keys(json);
+			var concurrency = 1;
+			var marbleData = {
+					"marbles": []
+			};
+			
+			//serialized version
+			async.eachLimit(keys, concurrency, function(key, cb) {
+				console.log('!', json[key]);
+				chaincode.query.read([json[key]], function(e, marble) {
+					if(e != null) console.log('error:', e);
+					else {
+						marbleData.marbles.push(JSON.parse(marble));
+						cb(null);
+					}
+				});
+			}, function() {
+				return callback(null, marbleData);
+			});
+		}
+		catch(e){
+			console.log('error:', e);
+		}
+	});
+}
+
+module.exports.createMarble = function(data, callback){
+	chaincode.invoke.init_marble([data.name, data.color, data.size, data.user], function(err, result) {
+		if(!err){
+			return callback(null, result);
+		}
+		
+	});
+}

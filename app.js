@@ -27,6 +27,16 @@ var setup = require('./setup');
 var fs = require("fs");
 var cors = require('cors');
 
+var part1 = require('./utils/ws_part1');
+var part2 = require('./utils/ws_part2');
+var ws = require('ws');
+var wss = {};
+var Ibc1 = require('ibm-blockchain-js');
+var ibc = new Ibc1();
+
+
+var api = require('./routes/api')(part1);
+
 //// Set Server Parameters ////
 var host = setup.SERVER.HOST;
 var port = setup.SERVER.PORT;
@@ -72,6 +82,7 @@ app.use(function(req, res, next){
 
 //// Router ////
 app.use('/', require('./routes/site_router'));
+app.use('/api', api);
 
 ////////////////////////////////////////////
 ////////////// Error Handling //////////////
@@ -125,12 +136,6 @@ require('cf-deployment-tracker-client').track();		//reports back to us, this hel
 // ============================================================================================================================
 // 														Test Area
 // ============================================================================================================================
-var part1 = require('./utils/ws_part1');
-var part2 = require('./utils/ws_part2');
-var ws = require('ws');
-var wss = {};
-var Ibc1 = require('ibm-blockchain-js');
-var ibc = new Ibc1();
 
 // ==================================
 // load peers manually or from VCAP, VCAP will overwrite hardcoded list!

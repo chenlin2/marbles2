@@ -1,0 +1,135 @@
+<html>
+<head>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.js"></script>
+<script>
+	$(document).ready(function() {
+		$.ajax({
+			url: 'http://localhost:3000/api/marbles',
+			type: 'GET',
+			dataType: 'JSON',
+			beforeSend: function(){
+				$('#loadingtr div').append('<img src="loading.gif" style="width: 30px; height: 30px">');
+			},
+			success: function(data){
+				$('#loadingtr').hide();
+				$('#loadingtr div').empty();
+				$.each(data.marbles, function(index, marble){
+					console.log(marble);
+					$('#body-table').append(Mustache.render($('#template-data').html(), marble));
+				});
+			}
+		});
+		
+		$('button').click(function(){
+			var formData = {
+				name: $('#name').val(),
+				color: $('#color').val(),
+				size: $('#size').val(),
+				user: $('#user').val()
+			};
+			
+			$.ajax({
+				url: 'http://localhost:3000/api/marbles',
+				type: 'POST',
+				data: formData,
+				success: function(data){
+					$('#loading').hide();
+					if(data.result.status == 'OK'){
+						$.ajax({
+							url: 'http://localhost:3000/api/marbles',
+							type: 'GET',
+							dataType: 'JSON',
+							beforeSend: function(){
+								$('#loadingtr').show();
+								$('#loadingtr div').append('<img src="loading.gif" style="width: 30px; height: 30px">');
+							},
+							success: function(data){
+								$('#loadingtr').hide();
+								$('#loadingtr div').empty();
+								$('#body-table').empty();
+								$.each(data.marbles, function(index, marble){
+									$('#body-table').append(Mustache.render($('#template-data').html(), marble));
+								});
+							}
+						});
+					}
+				}
+			});
+			return false;
+		});
+	});
+</script>
+<style type="text/css">
+	.circle{
+		border-radius: 50px;
+	}
+</style>
+<title>INDEX</title>
+</head>
+<body>
+	<div class="container">
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Display</th>
+						<th>Name</th>
+						<th>Color</th>
+						<th>Size</th>
+						<th>User</th>
+					</tr>
+				</thead>
+				<tbody id="body-table">
+					<tr id="loadingtr">
+						<td colspan="5">
+							<div align="center"></div>
+						</td>
+					</tr>
+					<template id="template-data">
+					<tr>
+						<td><div class="circle" style="height: {{ size }}; width: {{ size }}; background-color: {{ color }}"></div></td>
+						<td>{{ name }}</td>
+						<td>{{ color }}</td>
+						<td>{{ size }}</td>
+						<td>{{ user }}</td>
+					</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="container">
+		<h3>Create new Marble</h3>
+		
+		<form role="form">
+			<div class="form-group">
+				<label for="name">Marble name</label> <input type="text"
+					class="form-control" id="name">
+			</div>
+			<div class="form-group">
+				<label for="color">Color:</label> <input type="text"
+					class="form-control" id="color" placeholder="#ff0000 OR orange">
+			</div>
+			<div class="form-group">
+				<label for="size">Size:</label>
+				<select class="form-control" id="size">
+					<option value="16">Small</option>
+					<option value="35">Big</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="user">User:</label>
+				<select class="form-control" id="user">
+					<option value="Bob">Bob</option>
+					<option value="Leroy">Leroy</option>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-default">Submit</button>
+		</form>
+	</div>
+</body>
+</html>
